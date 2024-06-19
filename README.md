@@ -54,3 +54,21 @@ The code block above uses ScanPy to create a UMAP plot with multiple color-coded
   
 The resultant plot can be seen below:
 ![umap plot](images/umap1.png)
+
+In the UMAP plot above, multiple subplots show the same cell positions but are colored differently based on the variables specified in our color_vars list. In each subplot, the color intensity of each point indicates the expression level or value of the corresponding variable, with darker colors indicating a higher expression or value. The plot allows for the visual comparison of different variables across the same set of cells, helping to identify patterns or relationships between the variables. For example, in the first subplot, we see the expression levels of CD79A, highlighting B-cells. The sixth subplot, on the other hand, shows the expression level of FCGR3A, highlighting the expression of monocytes.
+
+Based on these subplots, we can start to guess what cell types the different regions of the subplots may represent. For example, seeing that the region in the bottom left corner of the subplots is darkened for CD79A and MS41A but not for other genes tells us that it may represent B-cells. To help make this more visually apparent, we can use Leiden clustering, a graph-based clustering algorithm used to identify distinct groups or clusters in single-cell RNA sequencing (scRNA-seq) data. The code block below demonstrates how to use ScanPy to perform Leiden clustering on the PBMC dataset and then create a UMAP plot with the cells colored according to their assigned clusters:
+
+```
+sc.tl.leiden(pbmc, key_added='clusters', resolution=0.5, n_iterations=2, flavor='igraph', directed=False)
+sc.pl.umap(pbmc, color='clusters', add_outline=True, legend_loc='on data', legend_fontsize=12, legend_fontoutline=2, frameon=True)
+```
+
+Below, I’ll break the code down step by step:
+- **sc.tl.leiden(pbmc, key_added='clusters', resolution=0.5, n_iterations=2, flavor='igraph', directed=False)
+** is a function that performs Leiden clustering on the PBMC dataset. **key_added=’clusters’(( refers to the key in the pbmc.obs attribute (i.e., the observation metadata associated with each cell in the dataset) where the cluster assignments are stored, resolution=0.5 controls the granularity of the cluttering (a higher resolution leads to more clusters), n_iterations=2 is the number of iterations to refine the clustering (more iterations can lead to better results at the cost of increased compute time), flavor=’igraph’ specifies the version of the Leiden algorithm to use, and directed=False specifies whether the graph used for clustering is directed or undirected.
+- **sc.pl.umap(pbmc, color='clusters', add_outline=True, legend_loc='on data', legend_fontsize=12, legend_fontoutline=2, frameon=True)
+** is a function that creates a umap plot for the PBMC dataset, and color=’clusters’ specifies that the cells should be colors according to their cluster assignments stored in the ‘clusters’ key of pbmc.obs. The remaining inputs for the sc.pl.umap() function are used to adjust how the data is displayed in the visualization below, making it easier to interpret:
+
+
+
