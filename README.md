@@ -53,4 +53,4 @@ The code block above uses ScanPy to create a UMAP plot with multiple color-coded
 - **sc.pl.umap(pbmc, color=color_vars, s=50, ncols=3, vmax="p99")** creates a UMAP plot using ScanPy’s umap() function. Within the umap() function, we have multiple arguments, including pbmc, which is our dataset containing ssRNA-seq data, color=color_vars, which specifies the variable to use for coloring the UMAP plot, as well as additional parameters that specify the size of the plot, the number of columns, and the maximum color scale value (ensuring outliers do not overly influence the color scale).
   
 The resultant plot can be seen below:
-
+![umap plot](scanpy_tutorial/images/umap1.png)
