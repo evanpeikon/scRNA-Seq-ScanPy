@@ -70,5 +70,91 @@ Below, I’ll break the code down step by step:
 - **sc.pl.umap(pbmc, color='clusters', add_outline=True, legend_loc='on data', legend_fontsize=12, legend_fontoutline=2, frameon=True)
 ** is a function that creates a umap plot for the PBMC dataset, and color=’clusters’ specifies that the cells should be colors according to their cluster assignments stored in the ‘clusters’ key of pbmc.obs. The remaining inputs for the sc.pl.umap() function are used to adjust how the data is displayed in the visualization below, making it easier to interpret:
 
+![annotated leiden clusters](images/annotated_clusters.jpg)
 
+The UMAP plot above visually represents the clustering results from the above code, showing how cells are grouped into clusters based on their gene expression profiles. This type of plot is useful for exploring the heterogeneity of cell populations and identifying distinct cell types or states within a sample. Notably, cells that are close together in the UMAP plot are more similar in terms of gene expression profiles. For example, we can assume that cluster 0 primarily represents monocytes, clusters 1-2 are dominated by T-cells, 3-4 and 7-8 by macrophages or dendritic cells, and 5-6 by B-cells, as demonstrated in the images below:
 
+![annotated leiden clusters](images/annotated_clusters2.jpg)
+
+# 🧫 Other Methods For Identifying Clusters By Marker Genes
+
+In the previous section, we explored using scatter plots to visualize gene expression and link it to specific clusters in your data. However, there are several other methods for identifying clusters by marker genes, such as dot plots, violin plots, heatmaps, and tracks plots. While these visualizations convey the same information, each offers a unique perspective. Understanding how to use these tools is valuable because viewing data from different angles can lead to different interpretations. 
+
+To begin, we’ll create a dictionary to store our cell types and their associated marker genes as key-value pairs, as demonstrated below:
+
+```
+marker_gene_dictionary = {'B-cell':['CD79A','MS4A1'], 'Dendritic': ['FCER1A','CST3'], 'Monocytes':['FCGR3A'], 'NK':['GNLY','NKG7'], 'Plasma':['IGJ'], 'T-cell':['CD3D'], 'Other':['IGLL1']}
+```
+
+**Dot Plot:**
+Next, we’ll create a dot plot to visualize the expression of the aforementioned marker genes per cluster, using the code below:
+
+```
+sc.pl.dotplot(pbmc, marker_gene_dictionary, 'clusters', dendrogram=True)
+```
+![dot plot](images/dot_plot.jpg)
+
+The dot plot visualizes the expression of marker genes for each cluster. Each row in the dot plot above represents a cluster, and each column represents a marker gene. Additionally, the color and size of the dots represent their mean expression level and the fraction of cells in each cluster expressing the gene, respectively. Thus, marker genes that are specific to or highly expressed in a particular cluster will appear as large, dark dots in the corresponding column for that cluster. The dot plot above also has a dendrogram displayed on the side, which brings together similar clusters using the correlation of the PCA components between the clusters, helping to identify clusters of marker genes and clusters of cells that share similar expression patterns.
+
+**Violin Plot:**
+A violin plot is a type of data visualization that provides a visual summary of the distribution of expression levels for each marker gene across different clusters, helping to identify genes that are differentially expressed between clusters and gain insights into the heterogeneity of cell populations. The code below demonstrates how to generate a violin plot:
+
+```
+sc.pl.violin(pbmc, ['CD79A', 'MS4A1', 'FCER1A', 'CST3', 'FCGR3A', 'GNLY' ,'NKG7','IGLL1', 'IGJ', 'CD3D'], groupby='clusters')
+```
+
+![violin plot](images/violin_plot.jpg)
+
+When interpreting a violin plot, there are three primary things we’re looking at: the x-axis, y-axis, and violin shape. The x-axis represents the clusters specified in the group by argument in the code above, the y-axis represents the expression level of specific marker genes, and the violin shape represents the distribution of expression levels for a specific marker gene within a cluster. The width of the plot at each expression level indicates the density of cells with that expression level. Additionally, the height and width of the violin plot show the range and density of expression levels for each marker gene within each cluster.
+
+**Heat Maps and Tracks Plots:**
+
+In this final sub-section, I’ll show you how to use heat maps and track plots to identify clusters by marker genes. Both heat maps and track plots represent data in a matrix format, allowing for simultaneous visualization of multiple genes and samples, making it easier to identify co-regulated genes and differences in expression levels. In the block block below, I’ll show you how to generate a heat map using ScanPy:
+
+```
+sc.pl.heatmap(pbmc, marker_genes_dictionary, groupby='clusters', dendrogram=True, swap_axes=True,  figsize=(11, 5))
+```
+
+![heatmap plot](images/heatmap.jpg)
+
+When interpreting a heat map, darker colors (purple in this case) generally indicate higher gene expression levels than lighter colors (yellow). Additionally, the intensity of color reflects the magnitude of gene expression, with more intense shades of a given color representing higher expression. Additionally, it’s important to look for gene expression patterns across clusters, noting that genes with similar expression patterns may be functionally related or co-regulated.
+
+Now, a track plot presents the same information as a heat map but with a twist. Instead of using a color scale to represent gene expression, it employs tracks where gene expression is represented by height. This unique feature sets it apart from a heat map. The code below demonstrates how to create a track plot in ScanPy:
+
+```
+sc.pl.tracksplot(pbmc, marker_genes_dictionary, groupby='clusters', dendrogram=True)
+```
+![tracks plot](images/tracksplot.jpg)
+
+Because heat maps and track plots convey the same information, choosing between using one or the other is simply a matter of preference. Personally, I prefer track plots and find it easier to compare changes in gene expression based on differences in height versus shade of colors.
+
+# 🧫 Identifying Marker Genes By Clusters
+
+In the previous sections, I provided a guide on characterizing clusters using known, pre-defined marker genes. Now, in this final section, we delve into the reverse process— how to identify marker genes that are differentially expressed between clusters or cell types, which is applicable in various research contexts, particularly in the discovery of biomarkers.
+
+As with the previous section, we have many options when selecting the type of plot to best identify new marker genes. The choice between one or the other ultimately comes down to understanding the advantages and limitations of any given plot type. While it's worth exploring all sorts of data visualizations when identifying marker genes by clusters, I'll use dot plots for simplicity's sake in this section. The code block below demonstrates how to calculate differential gene expression rankings between clusters, which will be used in the subsequent data visualization:
+
+```
+sc.tl.rank_genes_groups(pbmc, groupby='clusters', method='wilcoxon')
+```
+
+Now, let’s break this code down step-by-step to see how it works:
+-The function **sc.tl.rank_genes_groups(pbmc, …etc.)** is used to perform differential gene expression analysis in ScanPy using the pbmc dataset. 
+- The **groupby=’clusters’** variable in the function call specifies the key in the pbmc.obs attribute that defines the groups for comparison. 
+- Finally, **method=’wilcoxon’** specifies the statistical test used to compare gene expression between groups.
+
+After performing differential expression analysis using the code above, we can use a dot plot visualization to get an overview of the genes that are differentially expressed. Notably, we’ll plot log-fold changes instead of gene expression since log-fold changes provide a more stable, normalized, and interpretable measure of differential gene expression, making it a standard approach in RNA-seq and other high-throughput sequencing analyses.
+
+```
+sc.pl.rank_genes_groups_dotplot(pbmc, n_genes=4, values_to_plot= 'logfoldchanges', min_logfoldchange=3, vmax=7, vmin=-7, cmap='bwr')
+```
+
+The code above uses ScanPy’s sc.pl.rank_genes_groups_dotplot( ) function to create a dot plot showing the expression of the top differentially expressed genes between clusters in the pbmc dataset. Below, I’ll break down the arguments in this function:
+- **n_genes=4** species the number of top differentially expressed genes to plot for each cluster. 
+- **values_to_plot=’logfoldchanges’** specifies that we’ll plot the log-fold gene expression changes between clusters in our dot plot. 
+- **min_logfoldchange=3** is the minimum log gold change to include in the plot. Thus, genes with a log-fold change below this threshold won’t be plotted. 
+- **vmax=7** and **vmin = -7** refer to the dot plot's maximum and minimum values on the color scale. Genes above and below the max and min values for log-fold change will have the highest and lowest possible color codings in the color map specified by the attribute cmap=’bwr’.
+
+![dot plot](images/dotplot2.jpg)
+
+Each column in the dot plot above represents a cluster, and clusters are grouped in four-column bunches. Within each cluster, you find the four top genes, which have the highest log-fold changes in gene expression, with the size and color of a dot indicating the magnitude and degree of expression. For example, in cluster seven, we see that IRF8, HLA-DPA1, CPVL, and CST3 are the selected genes with the greatest log-fold change in expression indicated by large red dots and that these same genes have a negative log-fold change in expression in clusters 1,2,5 and 8. Importantly, this analysis has revealed multiple genes not included in our initial list of marker genes, providing us with new potential biomarkers for identifying specific cell types.
