@@ -1,4 +1,4 @@
-# 🧫 Identifying and visualizing marker genes with Scanpy
+# 🧫 Identifying and Visualizing Marker Genes with Scanpy
 
 RNA-seq is a technique used to analyze the expression of genes in a biological sample that works by converting RNA molecules into complementary DNA (cDNA), sequencing this cDNA, and mapping the sequence data to a reference genome transcriptome to quantify gene expression levels. 
 
