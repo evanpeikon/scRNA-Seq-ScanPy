@@ -1,10 +1,8 @@
-# 🧫 scanpy_tutorial
-Identifying and visualizing marker genes with Scanpy
+# 🧫 Identifying and visualizing marker genes with Scanpy
 
 RNA-seq is a technique used to analyze the expression of genes in a biological sample that works by converting RNA molecules into complementary DNA (cDNA), sequencing this cDNA, and mapping the sequence data to a reference genome transcriptome to quantify gene expression levels. 
 
 Whereas traditional bulk RNA sequencing provides an average gene expression profile for a population of cells, single-cell RNA-seq (scRNA-seq) allows for the study of gene expression at a single-cell level, providing insights into cellular heterogeneity and gene expression patterns within individual cells. As a result, scRNA-seq has diverse applications in studying disease mechanisms in specific cell types, identifying new drug targets, and discovering new biomarkers. 
-
 
 # 🧫 Analyzing scRNA-Seq Data With ScanPy
 
